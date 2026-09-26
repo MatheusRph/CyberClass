@@ -37,9 +37,28 @@ body{
   line-height:1.5;
 }
 .wrap{max-width:760px; margin:0 auto; padding:28px 20px 60px;}
-header{margin-bottom:22px;}
+header{margin-bottom:12px;}
 h1{font-size:1.5rem; margin:0 0 4px; letter-spacing:-0.01em;}
 .sub{color:var(--muted); font-size:0.92rem; margin:0;}
+
+/* Subjects Nav Styles */
+nav.subjects-nav {
+  display: flex; gap: 8px; margin: 22px 0 24px; border-bottom: 1px solid var(--line); flex-wrap: wrap;
+}
+nav.subjects-nav button {
+  background: none; border: none; padding: 10px 4px; margin-right: 14px;
+  font-size: 0.95rem; color: var(--muted); cursor: pointer;
+  border-bottom: 2px solid transparent; font-weight: 600; transition: color 0.2s;
+}
+nav.subjects-nav button.active {
+  color: var(--accent); border-bottom-color: var(--accent);
+}
+nav.subjects-nav button:hover:not(:disabled) {
+  color: var(--accent);
+}
+nav.subjects-nav button:disabled {
+  opacity: 0.5; cursor: not-allowed;
+}
 
 /* Search Bar Styles */
 .search-container { margin-bottom: 24px; }
@@ -49,6 +68,10 @@ h1{font-size:1.5rem; margin:0 0 4px; letter-spacing:-0.01em;}
   font-size: 1rem; outline: none; transition: border-color 0.2s;
 }
 .search-bar:focus { border-color: var(--accent); }
+
+/* Subject Container */
+.subject-container { display: none; }
+.subject-container.active { display: block; }
 
 /* Modules Grid */
 .modules-grid {
@@ -96,198 +119,207 @@ pre{
 <body>
 <div class="wrap">
 <header>
-  <h1>Guia de Comandos Linux</h1>
-  <p class="sub">Resumo Completo: Arquivos, Usuários, Permissões, Serviços e Rede</p>
+  <h1>Repositório de Comandos</h1>
+  <p class="sub">Guia rápido para administração de sistemas e redes</p>
 </header>
+
+<!-- Navegação de Matérias -->
+<nav class="subjects-nav" id="subjectsNav">
+  <button class="active" data-subject="linux-windows">Linux e Windows Server</button>
+  <button disabled title="Mais matérias serão adicionadas aqui futuramente">Outra Matéria (Em breve)</button>
+</nav>
 
 <div class="search-container">
   <input type="text" id="searchInput" class="search-bar" placeholder="Buscar comandos (ex: ls, chmod, nmcli, systemctl)...">
 </div>
 
 <div class="nav-controls" id="navControls">
-  <button class="back-btn" id="backBtn">← Voltar para os Módulos</button>
+  <button class="back-btn" id="backBtn">← Voltar para Matérias e Módulos</button>
 </div>
 
-<!-- Módulos / Prévia -->
-<div class="modules-grid" id="modulesGrid">
-  <div class="module-card" data-target="navegacao">
-    <h3>Navegação e Arquivos</h3>
-    <p>Prévia: pwd, ls, cd, mkdir, cp, mv, rm...</p>
-  </div>
-  <div class="module-card" data-target="usuarios">
-    <h3>Usuários e Grupos</h3>
-    <p>Prévia: adduser, userdel, addgroup, usermod...</p>
-  </div>
-  <div class="module-card" data-target="permissoes">
-    <h3>Permissões e Propriedade</h3>
-    <p>Prévia: chmod (755, u+x), chown, chgrp...</p>
-  </div>
-  <div class="module-card" data-target="servicos">
-    <h3>Serviços e Daemons</h3>
-    <p>Prévia: systemctl status, start, enable...</p>
-  </div>
-  <div class="module-card" data-target="rede">
-    <h3>Rede e Interfaces (IP)</h3>
-    <p>Prévia: ip a, nmcli device, nmcli connection...</p>
-  </div>
-</div>
-
-<!-- Seções de Comandos -->
-<div id="sectionsContainer">
+<!-- Container da Matéria: Linux e Windows Server -->
+<div id="linux-windows" class="subject-container active">
   
-  <section id="navegacao" class="command-section">
-    <h2 class="section-title">Navegação e Arquivos</h2>
-    <div class="step">
-      <div class="num">1</div>
-      <div><h3>Descobrir localização e usuário</h3>
-        <p><code>pwd</code> mostra o caminho completo da pasta atual[cite: 3, 6]. <code>whoami</code> mostra o nome do usuário conectado[cite: 3, 6].</p>
-        <pre>pwd
+  <!-- Módulos / Prévia -->
+  <div class="modules-grid" id="modulesGrid">
+    <div class="module-card" data-target="navegacao">
+      <h3>Navegação e Arquivos</h3>
+      <p>Prévia: pwd, ls, cd, mkdir, cp, mv, rm...</p>
+    </div>
+    <div class="module-card" data-target="usuarios">
+      <h3>Usuários e Grupos</h3>
+      <p>Prévia: adduser, userdel, addgroup, usermod...</p>
+    </div>
+    <div class="module-card" data-target="permissoes">
+      <h3>Permissões e Propriedade</h3>
+      <p>Prévia: chmod (755, u+x), chown, chgrp...</p>
+    </div>
+    <div class="module-card" data-target="servicos">
+      <h3>Serviços e Daemons</h3>
+      <p>Prévia: systemctl status, start, enable...</p>
+    </div>
+    <div class="module-card" data-target="rede">
+      <h3>Rede e Interfaces (IP)</h3>
+      <p>Prévia: ip a, nmcli device, nmcli connection...</p>
+    </div>
+  </div>
+
+  <!-- Seções de Comandos -->
+  <div id="sectionsContainer">
+    
+    <section id="navegacao" class="command-section">
+      <h2 class="section-title">Navegação e Arquivos</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>Descobrir localização e usuário</h3>
+          <p><code>pwd</code> mostra o caminho completo da pasta atual[cite: 3, 6]. <code>whoami</code> mostra o nome do usuário conectado[cite: 3, 6].</p>
+          <pre>pwd
 whoami</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div><h3>Listar arquivos</h3>
-        <p><code>ls</code> lista arquivos e diretórios do local atual[cite: 3, 6]. Você pode usar opções como <code>-l</code> para detalhes[cite: 3, 6].</p>
-        <pre>ls
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>Listar arquivos</h3>
+          <p><code>ls</code> lista arquivos e diretórios do local atual[cite: 3, 6]. Você pode usar opções como <code>-l</code> para detalhes[cite: 3, 6].</p>
+          <pre>ls
 ls -l</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div><h3>Manipular pastas e arquivos</h3>
-        <p><code>mkdir</code> cria pastas[cite: 3, 6]. <code>cp</code> cria uma cópia de um arquivo[cite: 3, 6]. <code>mv</code> move ou renomeia um arquivo[cite: 3, 6].</p>
-        <pre>mkdir nova_pasta
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>Manipular pastas e arquivos</h3>
+          <p><code>mkdir</code> cria pastas[cite: 3, 6]. <code>cp</code> cria uma cópia de um arquivo[cite: 3, 6]. <code>mv</code> move ou renomeia um arquivo[cite: 3, 6].</p>
+          <pre>mkdir nova_pasta
 cp arquivo.txt copia.txt
 mv arquivo.txt /destino/</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="usuarios" class="command-section">
-    <h2 class="section-title">Usuários e Grupos</h2>
-    <div class="step">
-      <div class="num">1</div>
-      <div><h3>Gerenciar Usuários</h3>
-        <p>Para criar um usuário, utilize <code>sudo adduser nome</code>[cite: 2, 5]. Para excluir o usuário e sua pasta /home, utilize <code>sudo userdel -r nome</code>[cite: 2, 5].</p>
-        <pre>sudo adduser aluno01
+    <section id="usuarios" class="command-section">
+      <h2 class="section-title">Usuários e Grupos</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>Gerenciar Usuários</h3>
+          <p>Para criar um usuário, utilize <code>sudo adduser nome</code>[cite: 2, 5]. Para excluir o usuário e sua pasta /home, utilize <code>sudo userdel -r nome</code>[cite: 2, 5].</p>
+          <pre>sudo adduser aluno01
 sudo userdel -r aluno01</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div><h3>Gerenciar Grupos</h3>
-        <p>Crie grupos com <code>sudo addgroup nome</code>[cite: 2] ou <code>sudo groupadd nome</code>[cite: 5]. Para consultar os grupos, use <code>getent group</code>[cite: 2].</p>
-        <pre>sudo addgroup suporte
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>Gerenciar Grupos</h3>
+          <p>Crie grupos com <code>sudo addgroup nome</code>[cite: 2] ou <code>sudo groupadd nome</code>[cite: 5]. Para consultar os grupos, use <code>getent group</code>[cite: 2].</p>
+          <pre>sudo addgroup suporte
 getent group</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div><h3>Adicionar Usuário ao Grupo</h3>
-        <p>Use <code>sudo usermod -aG grupo usuario</code> para adicionar o usuário a um grupo sem apagar as participações antigas[cite: 2, 5].</p>
-        <pre>sudo usermod -aG suporte aluno01</pre>
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>Adicionar Usuário ao Grupo</h3>
+          <p>Use <code>sudo usermod -aG grupo usuario</code> para adicionar o usuário a um grupo sem apagar as participações antigas[cite: 2, 5].</p>
+          <pre>sudo usermod -aG suporte aluno01</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- NOVO MÓDULO: PERMISSÕES E CHMOD/CHOWN -->
-  <section id="permissoes" class="command-section">
-    <h2 class="section-title">Permissões e Propriedade</h2>
-    <div class="step">
-      <div class="num">1</div>
-      <div><h3>Alterar permissões: Letras (Simbólico)</h3>
-        <p>O <code>chmod</code> aceita <b>u</b> (dono), <b>g</b> (grupo) e <b>o</b> (outros)[cite: 5]. Use <b>+</b> (adicionar) ou <b>-</b> (remover) seguidos de <b>r</b> (leitura), <b>w</b> (escrita) e <b>x</b> (execução)[cite: 5].</p>
-        <pre>chmod u+x script.sh
+    <section id="permissoes" class="command-section">
+      <h2 class="section-title">Permissões e Propriedade</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>Alterar permissões: Letras (Simbólico)</h3>
+          <p>O <code>chmod</code> aceita <b>u</b> (dono), <b>g</b> (grupo) e <b>o</b> (outros)[cite: 5]. Use <b>+</b> (adicionar) ou <b>-</b> (remover) seguidos de <b>r</b> (leitura), <b>w</b> (escrita) e <b>x</b> (execução)[cite: 5].</p>
+          <pre>chmod u+x script.sh
 chmod g+w relatorio.txt
 chmod o-r segredo.txt</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div><h3>Alterar permissões: Números (Octal)</h3>
-        <p>Some os valores: 4 (leitura), 2 (escrita), 1 (execução)[cite: 5]. Um total de 7 significa permissão total (rwx), 6 significa leitura e escrita (rw-)[cite: 5].</p>
-        <pre>chmod 750 projeto
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>Alterar permissões: Números (Octal)</h3>
+          <p>Some os valores: 4 (leitura), 2 (escrita), 1 (execução)[cite: 5]. Um total de 7 significa permissão total (rwx), 6 significa leitura e escrita (rw-)[cite: 5].</p>
+          <pre>chmod 750 projeto
 chmod 640 relatorio.txt</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div><h3>Alterar dono e grupo (chown e chgrp)</h3>
-        <p>O <code>chown</code> altera o usuário dono do arquivo[cite: 5]. O <code>chgrp</code> altera o grupo dono do arquivo[cite: 5]. É possível alterar ambos de uma vez usando <code>dono:grupo</code>[cite: 5].</p>
-        <pre>sudo chown professor aula.txt
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>Alterar dono e grupo (chown e chgrp)</h3>
+          <p>O <code>chown</code> altera o usuário dono do arquivo[cite: 5]. O <code>chgrp</code> altera o grupo dono do arquivo[cite: 5]. É possível alterar ambos de uma vez usando <code>dono:grupo</code>[cite: 5].</p>
+          <pre>sudo chown professor aula.txt
 sudo chgrp professores aula.txt
 sudo chown professor:professores aula.txt</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="servicos" class="command-section">
-    <h2 class="section-title">Serviços, Daemons e Systemctl</h2>
-    <div class="step">
-      <div class="num">1</div>
-      <div><h3>Verificar Status e Reiniciar</h3>
-        <p><code>systemctl status ssh</code> mostra o estado do serviço SSH[cite: 1, 4]. <code>sudo systemctl restart ssh</code> reinicia o serviço SSH[cite: 1, 4].</p>
-        <pre>systemctl status ssh
+    <section id="servicos" class="command-section">
+      <h2 class="section-title">Serviços, Daemons e Systemctl</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>Verificar Status e Reiniciar</h3>
+          <p><code>systemctl status ssh</code> mostra o estado do serviço SSH[cite: 1, 4]. <code>sudo systemctl restart ssh</code> reinicia o serviço SSH[cite: 1, 4].</p>
+          <pre>systemctl status ssh
 sudo systemctl restart ssh</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div><h3>Parar e Iniciar Serviços</h3>
-        <p><code>sudo systemctl start ssh</code> inicia o serviço agora[cite: 1, 4]. <code>sudo systemctl stop ssh</code> interrompe temporariamente o serviço[cite: 1, 4].</p>
-        <pre>sudo systemctl start ssh
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>Parar e Iniciar Serviços</h3>
+          <p><code>sudo systemctl start ssh</code> inicia o serviço agora[cite: 1, 4]. <code>sudo systemctl stop ssh</code> interrompe temporariamente o serviço[cite: 1, 4].</p>
+          <pre>sudo systemctl start ssh
 sudo systemctl stop ssh</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div><h3>Habilitar no Boot e Portas em Escuta</h3>
-        <p><code>sudo systemctl enable ssh</code> inicia automaticamente ao ligar o sistema[cite: 1, 4]. <code>ss -tuln</code> lista as portas abertas e serviços de escuta (TCP/UDP)[cite: 1, 4].</p>
-        <pre>sudo systemctl enable ssh
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>Habilitar no Boot e Portas em Escuta</h3>
+          <p><code>sudo systemctl enable ssh</code> inicia automaticamente ao ligar o sistema[cite: 1, 4]. <code>ss -tuln</code> lista as portas abertas e serviços de escuta (TCP/UDP)[cite: 1, 4].</p>
+          <pre>sudo systemctl enable ssh
 ss -tuln</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- NOVO MÓDULO: REDE E INTERFACES NMCLI -->
-  <section id="rede" class="command-section">
-    <h2 class="section-title">Configuração de Rede e Interfaces</h2>
-    <div class="step">
-      <div class="num">1</div>
-      <div><h3>Identificar Interfaces e Conexões</h3>
-        <p>Para visualizar suas interfaces, utilize o <code>ip a</code>[cite: 7, 9]. Para checar seus dispositivos gerenciados e conexões ativas com o Network Manager, utilize os comandos <code>nmcli device</code> e <code>nmcli connection show</code>[cite: 9].</p>
-        <pre>ip a
+    <section id="rede" class="command-section">
+      <h2 class="section-title">Configuração de Rede e Interfaces</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div><h3>Identificar Interfaces e Conexões</h3>
+          <p>Para visualizar suas interfaces, utilize o <code>ip a</code>[cite: 7, 9]. Para checar seus dispositivos gerenciados e conexões ativas com o Network Manager, utilize os comandos <code>nmcli device</code> e <code>nmcli connection show</code>[cite: 9].</p>
+          <pre>ip a
 nmcli device
 nmcli connection show</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">2</div>
-      <div><h3>Configurar IP Manual via nmcli</h3>
-        <p>Para aplicar um IP estático, desative o DHCP passando <code>ipv4.method manual</code>[cite: 9]. Em seguida, defina o endereço de IP com a máscara de rede (ex: /24), o gateway e o servidor DNS[cite: 9]. (Substitua "Wired connection 1" pelo nome da sua interface)[cite: 9].</p>
-        <pre>sudo nmcli connection modify "Wired connection 1" ipv4.method manual
+      <div class="step">
+        <div class="num">2</div>
+        <div><h3>Configurar IP Manual via nmcli</h3>
+          <p>Para aplicar um IP estático, desative o DHCP passando <code>ipv4.method manual</code>[cite: 9]. Em seguida, defina o endereço de IP com a máscara de rede (ex: /24), o gateway e o servidor DNS[cite: 9]. (Substitua "Wired connection 1" pelo nome da sua interface)[cite: 9].</p>
+          <pre>sudo nmcli connection modify "Wired connection 1" ipv4.method manual
 sudo nmcli connection modify "Wired connection 1" ipv4.addresses 192.168.10.201/24
 sudo nmcli connection modify "Wired connection 1" ipv4.gateway 192.168.10.1
 sudo nmcli connection modify "Wired connection 1" ipv4.dns "192.168.10.1"</pre>
+        </div>
       </div>
-    </div>
-    <div class="step">
-      <div class="num">3</div>
-      <div><h3>Aplicar Configurações e Validar Rota</h3>
-        <p>Depois de alterar as configurações, você deve derrubar a conexão (<code>down</code>) e ativá-la novamente (<code>up</code>) para que as regras entrem em vigor[cite: 9]. Verifique se o roteamento está correto com <code>ip route</code>[cite: 9].</p>
-        <pre>sudo nmcli connection down "Wired connection 1"
+      <div class="step">
+        <div class="num">3</div>
+        <div><h3>Aplicar Configurações e Validar Rota</h3>
+          <p>Depois de alterar as configurações, você deve derrubar a conexão (<code>down</code>) e ativá-la novamente (<code>up</code>) para que as regras entrem em vigor[cite: 9]. Verifique se o roteamento está correto com <code>ip route</code>[cite: 9].</p>
+          <pre>sudo nmcli connection down "Wired connection 1"
 sudo nmcli connection up "Wired connection 1"
 ip route</pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-</div>
+  </div> <!-- Fim Sections Container -->
+</div> <!-- Fim Subject Container -->
 
 </div>
 
 <script>
+const subjectsNav = document.getElementById('subjectsNav');
 const searchInput = document.getElementById('searchInput');
 const modulesGrid = document.getElementById('modulesGrid');
 const navControls = document.getElementById('navControls');
@@ -300,7 +332,8 @@ searchInput.addEventListener('input', (e) => {
   const term = e.target.value.toLowerCase();
   
   if (term.trim() !== '') {
-    // Esconder módulos e mostrar apenas os passos que combinam com a pesquisa
+    // Esconder módulos e nav de matérias durante a busca
+    subjectsNav.style.display = 'none';
     modulesGrid.style.display = 'none';
     navControls.style.display = 'none';
     
@@ -323,7 +356,7 @@ searchInput.addEventListener('input', (e) => {
       if(!hasVisibleSteps) sec.style.display = 'none';
     });
   } else {
-    // Se a pesquisa estiver vazia, volta ao estado de módulos iniciais
+    // Se a pesquisa estiver vazia, volta ao estado inicial
     resetView();
   }
 });
@@ -333,7 +366,8 @@ document.querySelectorAll('.module-card').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.dataset.target;
     
-    // Esconder grid de módulos e esvaziar busca
+    // Esconder nav de matérias, grid de módulos e esvaziar busca
+    subjectsNav.style.display = 'none';
     modulesGrid.style.display = 'none';
     searchInput.value = '';
     
@@ -355,6 +389,7 @@ document.querySelectorAll('.module-card').forEach(card => {
 backBtn.addEventListener('click', resetView);
 
 function resetView() {
+  subjectsNav.style.display = 'flex';
   modulesGrid.style.display = 'grid';
   navControls.style.display = 'none';
   searchInput.value = '';
