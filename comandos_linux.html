@@ -39,7 +39,8 @@ body{
 .wrap{max-width:800px; margin:0 auto; padding:28px 20px 60px;}
 
 /* Header & Print Button */
-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px; }
+header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px; flex-wrap: wrap; }
+.header-text { flex: 1; min-width: 250px; }
 h1{font-size:1.6rem; margin:0 0 4px; letter-spacing:-0.01em;}
 .sub{color:var(--muted); font-size:0.95rem; margin:0;}
 .print-btn {
@@ -97,7 +98,12 @@ nav.subjects-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
 .back-btn:hover { text-decoration: underline; }
 
 /* Sections */
-section { display: none; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 0 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+section { 
+  display: none; background: var(--panel); border: 1px solid var(--line); 
+  border-radius: var(--radius); padding: 0 24px; margin-bottom: 20px; 
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
+  overflow: hidden; /* Garante que nada vaze */
+}
 section.active { display: block; }
 section h2.section-title { margin: 24px 0 16px; font-size: 1.3rem; border-bottom: 1px solid var(--line); padding-bottom: 12px; color: var(--ink); }
 
@@ -109,10 +115,16 @@ section h2.section-title { margin: 24px 0 16px; font-size: 1.3rem; border-bottom
   color:var(--accent); font-size:0.85rem; font-weight:700;
   display:flex; align-items:center; justify-content:center; margin-top:2px;
 }
-.step-content { flex: 1; }
+
+/* FIX DE RESPONSIVIDADE PARA CÓDIGO PRETO DENTRO DE FLEXBOX BRANCO */
+.step-content { 
+  flex: 1; 
+  min-width: 0; /* Impede que o conteúdo interno force o container a expandir para fora da tela */
+}
+
 .step h3{margin:0 0 6px; font-size:1.1rem; color: var(--ink);}
 .step p{margin:0 0 12px; color:var(--muted); font-size:0.95rem;}
-code.inline{background:var(--accent-soft); color:var(--accent); padding:2px 6px; border-radius:4px; font-size:0.88em; font-family:ui-monospace,"SF Mono",Menlo,monospace;}
+code.inline{background:var(--accent-soft); color:var(--accent); padding:2px 6px; border-radius:4px; font-size:0.88em; font-family:ui-monospace,"SF Mono",Menlo,monospace; word-break: break-word;}
 
 /* Code Blocks */
 pre{
@@ -132,53 +144,29 @@ pre .c { color: var(--mono-accent); font-style: italic; }
 .note strong { color: var(--accent); }
 
 /* ==================================================
+   MOBILE (Telas pequenas)
+   ================================================== */
+@media (max-width: 600px) {
+  .wrap { padding: 20px 14px 40px; }
+  section { padding: 0 16px; } /* Diminui a margem interna nas caixas brancas */
+  .step { gap: 12px; padding: 20px 0; }
+  header { flex-direction: column; align-items: stretch; }
+  .print-btn { justify-content: center; width: 100%; margin-top: 8px; }
+}
+
+/* ==================================================
    CSS DE IMPRESSÃO (PDF)
    ================================================== */
 @media print {
-  /* Reseta cores de fundo para economizar tinta e forçar alto contraste */
   body { background: #FFFFFF; color: #000000; }
-  
-  /* Esconde interface de navegação, pesquisa e botão de impressão */
-  .subjects-nav, .search-container, .nav-controls, .modules-grid, .print-btn { 
-    display: none !important; 
-  }
-  
-  /* Força a exibição de todas as seções de comandos para montar o PDF completo */
-  .subject-container, section.command-section, .step { 
-    display: block !important; 
-    box-shadow: none; 
-    border: none; 
-  }
-  
-  /* Ajustes estruturais para as seções na folha de papel */
-  section.command-section {
-    padding: 0; margin-bottom: 30px;
-    page-break-inside: avoid;
-  }
-  section h2.section-title {
-    border-bottom: 2px solid #000;
-    margin-top: 30px;
-  }
-  
-  /* Formatação dos passos */
-  .step {
-    border-bottom: 1px solid #EEEEEE;
-    page-break-inside: avoid;
-    padding: 15px 0;
-  }
-  .num {
-    display: inline-flex; margin-right: 10px; margin-bottom: 10px;
-    border: 1px solid #000; background: transparent; color: #000;
-  }
-  
-  /* Ajustes no bloco de código para não cortar no papel */
-  pre {
-    background: #F8F8F8; color: #000; border: 1px solid #DDD;
-    white-space: pre-wrap; word-wrap: break-word; /* Força quebra de linha em comandos longos */
-  }
+  .subjects-nav, .search-container, .nav-controls, .modules-grid, .print-btn { display: none !important; }
+  .subject-container, section.command-section, .step { display: block !important; box-shadow: none; border: none; }
+  section.command-section { padding: 0; margin-bottom: 30px; page-break-inside: avoid; }
+  section h2.section-title { border-bottom: 2px solid #000; margin-top: 30px; }
+  .step { border-bottom: 1px solid #EEEEEE; page-break-inside: avoid; padding: 15px 0; }
+  .num { display: inline-flex; margin-right: 10px; margin-bottom: 10px; border: 1px solid #000; background: transparent; color: #000; }
+  pre { background: #F8F8F8; color: #000; border: 1px solid #DDD; white-space: pre-wrap; word-wrap: break-word; }
   pre .c { color: #555; }
-  
-  /* Remove o limite de largura para aproveitar toda a folha A4 */
   .wrap { max-width: 100%; padding: 0; }
 }
 </style>
@@ -186,7 +174,7 @@ pre .c { color: var(--mono-accent); font-style: italic; }
 <body>
 <div class="wrap">
 <header>
-  <div>
+  <div class="header-text">
     <h1>Repositório de Comandos</h1>
     <p class="sub">Guia interativo para administração de sistemas e redes</p>
   </div>
