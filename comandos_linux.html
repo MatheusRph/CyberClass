@@ -61,7 +61,7 @@ body {
 
 /* Aumento da largura máxima para melhor aproveitamento de monitores grandes */
 .wrap { 
-  max-width: 1100px; /* Expandido de 800px para 1100px */
+  max-width: 1100px; /* Expandido para usar melhor as laterais */
   margin: 0 auto; 
   padding: 28px 32px 60px; 
 }
@@ -151,11 +151,11 @@ section h2.section-title { margin: 28px 0 20px; font-size: 1.4rem; border-bottom
   color: var(--accent); font-size: 0.95rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center; margin-top: 2px;
 }
-.step-content { flex: 1; min-width: 0; } /* min-width 0 é crucial para impedir que o <pre> estoure a div no Flexbox */
+.step-content { flex: 1; min-width: 0; } /* min-width 0 é crucial para impedir overflow do <pre> */
 .step h3 { margin: 0 0 8px; font-size: 1.15rem; color: var(--ink); }
 .step p { margin: 0 0 14px; color: var(--muted); font-size: 1rem; line-height: 1.6; }
 
-/* Listas explicativas (como as do Samba) */
+/* Listas explicativas */
 .desc-list { margin: 0 0 16px 0; padding-left: 0; list-style: none; }
 .desc-list li { margin-bottom: 10px; font-size: 0.95rem; color: var(--muted); padding-left: 20px; position: relative; }
 .desc-list li::before { content: "•"; color: var(--accent); position: absolute; left: 0; font-weight: bold; font-size: 1.2rem; line-height: 1; }
@@ -169,7 +169,9 @@ pre {
   border-radius: 8px; font-size: 0.9rem;
   font-family: ui-monospace, "SF Mono", Menlo, monospace; margin: 0;
   line-height: 1.5;
-  overflow-x: auto; /* Permite scroll apenas se a palavra for inquebrável, mas normalmente o layout largo resolve */
+  white-space: pre-wrap; /* Força o texto a quebrar a linha */
+  word-wrap: break-word; /* Quebra palavras se forem muito grandes */
+  overflow-wrap: anywhere; 
 }
 pre .c { color: var(--mono-accent); font-style: italic; }
 
@@ -234,7 +236,7 @@ pre .c { color: var(--mono-accent); font-style: italic; }
 </nav>
 
 <div class="search-container">
-  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar comandos, parâmetros ou conceitos (ex: ls, smb.conf, valid users, scp)...">
+  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar comandos, parâmetros ou conceitos (ex: ls, smb.conf, nmcli, chmod)...">
 </div>
 
 <div class="nav-controls" id="navControls">
@@ -268,15 +270,15 @@ pre .c { color: var(--mono-accent); font-style: italic; }
     </div>
     <div class="module-card" data-target="rede">
       <h3>Rede e Interfaces (IP)</h3>
-      <p>Identificação de IP, rotas e configuração manual de rede via nmcli.</p>
+      <p>Controle completo do nmcli (add, modify, delete), IP estático e DHCP.</p>
     </div>
     <div class="module-card" data-target="ssh_remoto">
       <h3>SSH e Transferência</h3>
-      <p>Acesso remoto seguro, cópia de arquivos usando SCP e conexões SFTP.</p>
+      <p>Instalação do OpenSSH, acesso remoto, cópia SCP e scripts bash.</p>
     </div>
     <div class="module-card" data-target="samba_share">
       <h3>Samba e Mapeamento</h3>
-      <p>Edição do smb.conf, senhas Samba e comando mount para discos de rede.</p>
+      <p>Serviço SMB, smb.conf detalhado, usuários Samba (pdbedit) e mount CIFS.</p>
     </div>
   </div>
 
@@ -496,7 +498,7 @@ systemctl status ssh
 systemctl status apache2
 
 <span class="c"># Lista portas abertas e serviços em escuta no servidor (TCP/UDP)</span>
-ss -tuln</pre>
+ss -tulnp</pre>
         </div>
       </div>
       <div class="step">
@@ -518,55 +520,50 @@ sudo systemctl disable ssh</pre>
       </div>
     </section>
 
-    <!-- REDE E INTERFACES -->
+    <!-- REDE E INTERFACES (NMCLI COMPLETO) -->
     <section id="rede" class="command-section">
-      <h2 class="section-title">Configuração de Rede e IP Estático</h2>
+      <h2 class="section-title">Rede e Interfaces (nmcli Completo)</h2>
       <div class="step">
         <div class="num">1</div>
         <div class="step-content">
-          <h3>Reconhecimento de Rede</h3>
-          <p>Descubra os endereços IP atuais e identifique os nomes das suas placas de rede[cite: 7, 9].</p>
-          <pre><span class="c"># Mostra interfaces e endereços IPs atuais</span>
-ip a
+          <h3>Mapeamento e Gerenciamento de Conexões</h3>
+          <p>Comandos essenciais para listar, criar e apagar conexões de rede usando o <code>nmcli</code>[cite: 117].</p>
+          <pre><span class="c"># Mostra o nome das conexões atuais</span>
+nmcli connection show
 
-<span class="c"># Mostra tabela de roteamento (útil para validar o gateway)</span>
-ip route
+<span class="c"># Conectar a placa de rede específica (ex: enp0s3)</span>
+sudo nmcli device connect enp0s3
 
-<span class="c"># Lista dispositivos gerenciados pelo Network Manager</span>
-nmcli device
+<span class="c"># Criar uma NOVA conexão ethernet associada a uma interface</span>
+sudo nmcli connection add type ethernet ifname enp0s3 con-name Rede-nat
 
-<span class="c"># Mostra as conexões de rede configuradas</span>
-nmcli connection show</pre>
+<span class="c"># Apagar uma conexão de rede existente</span>
+sudo nmcli connection delete "Wired connection 1"
+
+<span class="c"># Trocar o nome de identificação da rede</span>
+sudo nmcli connection modify Rede-nat connection.id Rede-NAT</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">2</div>
         <div class="step-content">
-          <h3>Configurando IP Manual (Estático)</h3>
-          <p>Para desabilitar o DHCP e fixar um IP usando o <code>nmcli</code>, você precisa modificar 4 parâmetros[cite: 9].</p>
-          <pre><span class="c"># 1. Desabilita o DHCP e define configuração manual</span>
-sudo nmcli connection modify "Wired connection 1" ipv4.method manual
+          <h3>Configurando IP (Manual vs DHCP)</h3>
+          <p>Como alternar entre pegar o IP automaticamente via DHCP ou fixar um IP manual[cite: 117].</p>
+          <pre><span class="c"># Configurar a placa de rede para usar DHCP (Automático)</span>
+sudo nmcli connection modify Rede-nat ipv4.method auto
 
-<span class="c"># 2. Define o endereço IP e a máscara (ex: /24)</span>
-sudo nmcli connection modify "Wired connection 1" ipv4.addresses 192.168.10.201/24
-
-<span class="c"># 3. Define o Gateway da rede</span>
-sudo nmcli connection modify "Wired connection 1" ipv4.gateway 192.168.10.1
-
-<span class="c"># 4. Define o Servidor DNS</span>
-sudo nmcli connection modify "Wired connection 1" ipv4.dns "192.168.10.1"</pre>
+<span class="c"># Configurar IP MANUAL e atribuir o endereço (Ex: 192.168.15.10/24)</span>
+sudo nmcli connection modify Rede-local ipv4.method manual
+sudo nmcli connection modify Rede-local ipv4.addresses 192.168.15.10/24</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div class="step-content">
-          <h3>Aplicando a Nova Configuração</h3>
-          <p>Após rodar o <code>modify</code>, é obrigatório "reiniciar" a conexão na interface para as regras entrarem em vigor[cite: 9].</p>
-          <pre><span class="c"># Desativa a conexão de rede atual</span>
-sudo nmcli connection down "Wired connection 1"
-
-<span class="c"># Reativa a conexão aplicando o novo IP manual</span>
-sudo nmcli connection up "Wired connection 1"</pre>
+          <h3>Aplicando as Alterações</h3>
+          <p>Sempre que modificar algo no <code>nmcli</code>, você deve "subir" a interface novamente[cite: 117].</p>
+          <pre><span class="c"># Subir (ativar) a placa de rede para as regras entrarem em vigor</span>
+sudo nmcli connection up Rede-Aula</pre>
         </div>
       </div>
     </section>
@@ -577,107 +574,131 @@ sudo nmcli connection up "Wired connection 1"</pre>
       <div class="step">
         <div class="num">1</div>
         <div class="step-content">
-          <h3>Conexão SSH Básica</h3>
-          <p>O SSH permite o acesso seguro ao terminal de outra máquina. O daemon (`sshd`) atua escutando requisições, normalmente na porta 22[cite: 1, 46].</p>
-          <pre><span class="c"># Sintaxe: ssh [usuario]@[ip_do_servidor]</span>
-ssh aluno@192.168.1.100
+          <h3>Instalação e Conexão SSH</h3>
+          <p>O SSH permite o acesso seguro ao terminal de outra máquina. Instale o pacote <code>openssh-server</code> e conecte-se[cite: 118].</p>
+          <pre><span class="c"># Instalar o servidor SSH na máquina alvo</span>
+sudo apt update
+sudo apt install openssh-server
 
-<span class="c"># Para conectar especificando uma porta diferente da porta padrão 22:</span>
-ssh -p 2222 aluno@192.168.1.100</pre>
+<span class="c"># Verificar se a porta padrão (22) está em escuta</span>
+sudo ss -tulnp | grep :22
+
+<span class="c"># Acessar a VM/Servidor remotamente</span>
+ssh usuario@192.168.10.10
+
+<span class="c"># Parar o serviço SSH se necessário</span>
+sudo systemctl stop ssh</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">2</div>
         <div class="step-content">
           <h3>Transferência via SCP (Secure Copy)</h3>
-          <p>O comando SCP copia arquivos entre computadores usando a mesma segurança e criptografia do SSH.</p>
+          <p>O SCP permite enviar ou receber arquivos de um servidor utilizando a criptografia do SSH[cite: 118].</p>
           <pre><span class="c"># Enviar arquivo LOCAL para o servidor REMOTO</span>
-scp arquivo.txt aluno@192.168.1.100:/home/aluno/
+scp arquivo.txt usuario@IP_DO_SERVIDOR:/home/usuario/
 
-<span class="c"># Baixar arquivo do servidor REMOTO para a máquina LOCAL (o ponto final significa 'pasta atual')</span>
-scp aluno@192.168.1.100:/home/aluno/backup.zip .
+<span class="c"># Enviar uma pasta inteira e seu conteúdo (recursivo -r)</span>
+scp -r avaliacao aluno01@192.168.10.10:/home/aluno01/
 
-<span class="c"># Enviar uma pasta inteira e seu conteúdo (-r de recursivo)</span>
-scp -r pasta_local/ aluno@192.168.1.100:/home/aluno/</pre>
+<span class="c"># Baixar arquivo do servidor REMOTO para a máquina LOCAL (inverta a ordem. O '.' indica pasta atual)</span>
+scp aluno01@192.168.10.10:/home/aluno01/relatorio.txt .</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div class="step-content">
-          <h3>Sessão Interativa com SFTP</h3>
-          <p>O SFTP abre um prompt interativo seguro, semelhante ao FTP, ideal para navegar nas pastas remotas antes de transferir.</p>
-          <pre><span class="c"># Iniciar a conexão SFTP</span>
-sftp aluno@192.168.1.100
+          <h3>Permissões e Execução de Scripts (Bash)</h3>
+          <p>Após enviar um script bash para o servidor, você precisa dar permissão de execução (<code>+x</code>) antes de rodar[cite: 118].</p>
+          <pre><span class="c"># Dá permissão de execução ao script</span>
+chmod +x instalar_guest_additions.bash
 
-<span class="c"># Comandos usados DENTRO do prompt sftp> :</span>
-ls                 <span class="c"># Lista os arquivos remotos</span>
-put relatorio.pdf  <span class="c"># Faz o UPLOAD do arquivo para o servidor</span>
-get backup.tar.gz  <span class="c"># Faz o DOWNLOAD do arquivo do servidor para sua máquina</span>
-exit               <span class="c"># Encerra a sessão sftp</span></pre>
+<span class="c"># Executa o arquivo no diretório atual (./) como superusuário</span>
+sudo ./instalar_guest_additions.bash
+
+<span class="c"># Reinicia a máquina após a instalação</span>
+sudo reboot</pre>
         </div>
       </div>
     </section>
 
     <!-- SAMBA E COMPARTILHAMENTOS DE REDE -->
     <section id="samba_share" class="command-section">
-      <h2 class="section-title">Samba e Mapeamento de Rede</h2>
+      <h2 class="section-title">Samba, Permissões e Compartilhamentos</h2>
       <div class="step">
         <div class="num">1</div>
         <div class="step-content">
-          <h3>Entendendo o arquivo smb.conf</h3>
-          <p>O Samba permite compartilhar arquivos na rede utilizando a porta 445 (SMB)[cite: 1, 40]. A configuração base é feita no arquivo <code>/etc/samba/smb.conf</code>. Veja o que cada diretiva faz:</p>
-          <ul class="desc-list">
-            <li><code>path</code>: O caminho exato da pasta no servidor Linux (ex: <i>/var/samba/publico</i>).</li>
-            <li><code>browsable</code>: Se definido como <b>yes</b>, a pasta aparecerá visível na lista de diretórios quando alguém acessar o IP do servidor. Se <b>no</b>, ela fica oculta (o usuário precisa digitar o caminho exato para acessá-la).</li>
-            <li><code>read only</code>: Proteção de gravação. Se <b>yes</b>, os usuários só podem baixar/ler arquivos. Se <b>no</b>, eles podem criar e modificar arquivos (desde que o <i>chmod</i> do Linux também permita).</li>
-            <li><code>guest ok</code>: Controle de acesso anônimo. Se <b>yes</b>, qualquer pessoa acessa a pasta sem precisar de usuário/senha. Se <b>no</b>, o acesso é bloqueado para visitantes.</li>
-            <li><code>valid users</code>: Restringe o acesso de forma rígida. Você pode especificar usuários separados por vírgula (ex: <i>aluno01, admin</i>) ou bloquear por grupos usando o símbolo @ (ex: <i>@professores</i>).</li>
-          </ul>
-          <pre><span class="c"># Edite o arquivo (exige sudo)</span>
-sudo nano /etc/samba/smb.conf
+          <h3>Instalação e Entendimento do Serviço</h3>
+          <p>O Samba permite compartilhar arquivos entre Linux e Windows através da rede, utilizando o protocolo SMB (Server Message Block)[cite: 119]. O daemon responsável é o <code>smbd</code> e ele escuta nativamente na porta TCP 445 e nas portas NetBIOS 137, 138 e 139[cite: 121, 122].</p>
+          <pre><span class="c"># Instalar os pacotes necessários do Samba</span>
+sudo apt install samba
 
-<span class="c"># Exemplo prático de uma configuração no final do arquivo:</span>
-[Publico]
-   path = /var/samba/publico
-   browsable = yes
-   read only = no
-   guest ok = no
-   valid users = aluno01, @suporte</pre>
+<span class="c"># Verificar se o serviço smbd está ativo e rodando</span>
+systemctl status smbd</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">2</div>
         <div class="step-content">
-          <h3>Gerenciamento de Senhas do Samba (smbpasswd)</h3>
-          <p>O Samba não usa a senha principal do Linux para conexões de rede, ele possui um banco de senhas próprio. Você deve cadastrar o usuário explicitamente no Samba.</p>
-          <pre><span class="c"># O parâmetro -a (Add) vincula o usuário ao Samba e pede para definir a senha de rede</span>
-sudo smbpasswd -a aluno01
+          <h3>A Dupla Camada de Permissão (Linux + Samba)</h3>
+          <p><strong>Atenção:</strong> O Samba não substitui as permissões do Linux. O acesso precisa ser autorizado NAS DUAS camadas (Samba + Sistema de Arquivos)[cite: 127, 131].</p>
+          <pre><span class="c"># 1. Criação do grupo no Linux</span>
+sudo groupadd funcionarios
 
-<span class="c"># O parâmetro -e (Enable) reativa um usuário que foi desabilitado previamente</span>
-sudo smbpasswd -e aluno01
+<span class="c"># 2. Adiciona usuário existente ao grupo</span>
+sudo usermod -aG funcionarios maria
 
-<span class="c"># Após qualquer alteração no smb.conf ou nos usuários, reinicie o serviço</span>
-sudo systemctl restart smbd nmbd</pre>
+<span class="c"># 3. Cria a pasta e associa ao grupo</span>
+sudo mkdir -p /srv/funcionarios
+sudo chgrp funcionarios /srv/funcionarios
+
+<span class="c"># 4. Ajusta permissões do Linux (Dono: rwx, Grupo: rwx, Outros: ---)</span>
+sudo chmod 770 /srv/funcionarios</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div class="step-content">
-          <h3>Montar Compartilhamento (Mount CIFS)</h3>
-          <p>Para mapear uma pasta da rede diretamente no seu sistema de arquivos local do Linux, usamos o comando <code>mount</code> com o protocolo <code>cifs</code> (formato moderno do SMB).</p>
-          <pre><span class="c"># 1. Crie uma pasta vazia localmente que servirá como ponto de montagem (âncora)</span>
-sudo mkdir -p /mnt/rede_samba
+          <h3>Edição do smb.conf e Parâmetros Explicados</h3>
+          <p>As configurações da rede ficam em <code>/etc/samba/smb.conf</code>. É recomendado fazer um backup (<code>.bkp</code>) antes de editar[cite: 128]. Entenda cada linha:</p>
+          <ul class="desc-list">
+            <li><code>[Funcionarios]</code>: Nome que aparecerá para as máquinas na rede[cite: 129].</li>
+            <li><code>path</code>: Caminho real da pasta física no sistema Linux[cite: 129].</li>
+            <li><code>browseable = yes</code>: Permite que o compartilhamento fique visível (não oculto) aos clientes da rede[cite: 130].</li>
+            <li><code>read only = no</code>: Permite gravação/alteração (escrita). Se fosse 'yes', seria apenas leitura[cite: 130].</li>
+            <li><code>valid users = @funcionarios</code>: Restringe o acesso. O <b>@</b> indica que apenas membros do GRUPO "funcionarios" podem acessar[cite: 130, 131].</li>
+          </ul>
+          <pre><span class="c"># Criar backup antes de alterar</span>
+sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.bkp
 
-<span class="c"># 2. Monte o compartilhamento mapeando para a pasta local criada</span>
-<span class="c"># Sintaxe: mount -t cifs //IP_DO_SERVIDOR/NomeDaPasta /Ponto/De/Montagem -o username=Usuario</span>
-sudo mount -t cifs //192.168.1.100/Publico /mnt/rede_samba -o username=aluno01
+<span class="c"># Editar o arquivo de configuração</span>
+sudo nano /etc/samba/smb.conf
 
-<span class="c"># Após digitar a senha, você pode navegar pelos arquivos como se fossem locais:</span>
-ls -l /mnt/rede_samba
+<span class="c"># Exemplo prático a ser inserido no final do arquivo:</span>
+[Funcionarios]
+   path = /srv/funcionarios
+   browseable = yes
+   read only = no
+   valid users = @funcionarios</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="step-content">
+          <h3>Validação e Senhas (Autenticação Samba)</h3>
+          <p>O Samba possui um cadastro de senhas próprio, separado do `/etc/passwd`. Todo usuário Linux precisa ser cadastrado no Samba para acessar a rede[cite: 133].</p>
+          <pre><span class="c"># Analisa o arquivo smb.conf em busca de erros de digitação antes de reiniciar</span>
+testparm
 
-<span class="c"># 3. Para desconectar (desmontar) a unidade de rede</span>
-sudo umount /mnt/rede_samba</pre>
-          <div class="note"><strong>Dica de Instalação:</strong> Para que o comando mount consiga entender o protocolo <code>cifs</code>, é necessário que o pacote <strong>cifs-utils</strong> esteja instalado na máquina cliente (`sudo apt install cifs-utils`).</div>
+<span class="c"># Reinicia o serviço para o Samba ler a nova configuração</span>
+sudo systemctl restart smbd
+
+<span class="c"># Cadastra a usuária 'maria' no sistema de autenticação do Samba (pedirá a nova senha SMB)</span>
+sudo smbpasswd -a maria
+
+<span class="c"># Lista (consulta) todos os usuários registrados no banco do Samba</span>
+sudo pdbedit -L</pre>
+          <div class="note"><strong>Acesso via Windows:</strong> Com tudo configurado, no Windows você acessa utilizando o IP do servidor Linux, digitando: <code>\\192.168.1.10\Funcionarios</code>[cite: 135]. A rede pedirá o usuário (ex: maria) e a senha SMB cadastrada[cite: 135].</div>
         </div>
       </div>
     </section>
