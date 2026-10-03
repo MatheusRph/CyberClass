@@ -102,7 +102,6 @@ section {
   display: none; background: var(--panel); border: 1px solid var(--line); 
   border-radius: var(--radius); padding: 0 24px; margin-bottom: 20px; 
   box-shadow: 0 2px 8px rgba(0,0,0,0.03); 
-  overflow: hidden; /* Garante que nada vaze */
 }
 section.active { display: block; }
 section h2.section-title { margin: 24px 0 16px; font-size: 1.3rem; border-bottom: 1px solid var(--line); padding-bottom: 12px; color: var(--ink); }
@@ -115,23 +114,26 @@ section h2.section-title { margin: 24px 0 16px; font-size: 1.3rem; border-bottom
   color:var(--accent); font-size:0.85rem; font-weight:700;
   display:flex; align-items:center; justify-content:center; margin-top:2px;
 }
-
-/* FIX DE RESPONSIVIDADE PARA CÓDIGO PRETO DENTRO DE FLEXBOX BRANCO */
 .step-content { 
   flex: 1; 
-  min-width: 0; /* Impede que o conteúdo interno force o container a expandir para fora da tela */
+  min-width: 0; /* Previne expansão além da tela */
 }
 
 .step h3{margin:0 0 6px; font-size:1.1rem; color: var(--ink);}
 .step p{margin:0 0 12px; color:var(--muted); font-size:0.95rem;}
+.step ul { margin: 0 0 12px 0; padding-left: 20px; font-size: 0.95rem; color: var(--muted); }
+.step li { margin-bottom: 4px; }
 code.inline{background:var(--accent-soft); color:var(--accent); padding:2px 6px; border-radius:4px; font-size:0.88em; font-family:ui-monospace,"SF Mono",Menlo,monospace; word-break: break-word;}
 
-/* Code Blocks */
+/* Code Blocks RESPONSIVOS (SEM SCROLL) */
 pre{
   background:var(--mono-bg); color:var(--mono-ink); padding:16px;
-  border-radius:8px; overflow-x:auto; font-size:0.88rem;
+  border-radius:8px; font-size:0.88rem;
   font-family:ui-monospace,"SF Mono",Menlo,monospace; margin:0;
   line-height: 1.5;
+  white-space: pre-wrap; /* Força o texto a quebrar a linha */
+  word-wrap: break-word; /* Quebra palavras se forem muito grandes */
+  overflow-wrap: anywhere; 
 }
 pre .c { color: var(--mono-accent); font-style: italic; }
 
@@ -148,7 +150,7 @@ pre .c { color: var(--mono-accent); font-style: italic; }
    ================================================== */
 @media (max-width: 600px) {
   .wrap { padding: 20px 14px 40px; }
-  section { padding: 0 16px; } /* Diminui a margem interna nas caixas brancas */
+  section { padding: 0 16px; } 
   .step { gap: 12px; padding: 20px 0; }
   header { flex-direction: column; align-items: stretch; }
   .print-btn { justify-content: center; width: 100%; margin-top: 8px; }
@@ -581,12 +583,19 @@ exit               <span class="c"># Encerra a sessão sftp</span></pre>
       <div class="step">
         <div class="num">1</div>
         <div class="step-content">
-          <h3>Configuração Básica do smb.conf</h3>
-          <p>O Samba permite compartilhar arquivos entre Linux e Windows na rede, utilizando a porta 445 (SMB)[cite: 1, 40]. A configuração é feita no arquivo <code>/etc/samba/smb.conf</code>.</p>
-          <pre><span class="c"># Use o nano ou vi para editar o arquivo (exige sudo)</span>
+          <h3>Configuração do smb.conf explicada</h3>
+          <p>O Samba permite compartilhar arquivos entre Linux e Windows, utilizando o protocolo SMB na porta 445[cite: 1, 40]. A configuração base é feita no arquivo <code>/etc/samba/smb.conf</code>. Cada bloco entre chaves `[]` define uma pasta compartilhada.</p>
+          <ul>
+            <li><code>path</code>: O caminho real (absoluto) da pasta no sistema Linux.</li>
+            <li><code>browsable</code>: Se "yes", a pasta aparecerá visível quando o usuário acessar o IP do servidor na rede.</li>
+            <li><code>read only</code>: Se "yes", os usuários não poderão alterar ou enviar novos arquivos. Se "no", eles poderão escrever na pasta (desde que o <i>chmod</i> do Linux também permita).</li>
+            <li><code>guest ok</code>: Se "yes", permite acesso anônimo sem pedir senha.</li>
+            <li><code>valid users</code>: Restringe o acesso apenas aos usuários ou @grupos listados.</li>
+          </ul>
+          <pre><span class="c"># Edite o arquivo (exige sudo)</span>
 sudo nano /etc/samba/smb.conf
 
-<span class="c"># Exemplo de configuração de um compartilhamento a ser inserido no final do arquivo:</span>
+<span class="c"># Exemplo prático de uma configuração no final do arquivo:</span>
 [Publico]
    path = /var/samba/publico
    browsable = yes
@@ -598,34 +607,36 @@ sudo nano /etc/samba/smb.conf
       <div class="step">
         <div class="num">2</div>
         <div class="step-content">
-          <h3>Usuários e Serviço Samba</h3>
-          <p>Para acessar um compartilhamento autenticado, o usuário precisa ser adicionado ao banco de senhas exclusivo do Samba (mesmo que ele já exista no Linux).</p>
-          <pre><span class="c"># Adiciona o usuário do Linux ao Samba e define sua senha de rede</span>
+          <h3>Gerenciamento de Senhas do Samba (smbpasswd)</h3>
+          <p><strong>Atenção:</strong> O Samba usa um banco de senhas próprio, separado do `/etc/passwd`. Para acessar a rede, o usuário precisa ser adicionado ao Samba com uma senha específica, mesmo que a conta dele já exista no Linux.</p>
+          <pre><span class="c"># O parâmetro -a (Add) vincula o usuário ao Samba e define sua senha de rede</span>
 sudo smbpasswd -a aluno01
 
-<span class="c"># Habilita o usuário caso esteja desabilitado</span>
+<span class="c"># O parâmetro -e (Enable) reativa um usuário que foi desabilitado previamente</span>
 sudo smbpasswd -e aluno01
 
-<span class="c"># Reinicia os serviços do Samba para aplicar o smb.conf (em distribuições Debian/Ubuntu)</span>
+<span class="c"># Reinicie o serviço para aplicar as configurações feitas no smb.conf</span>
 sudo systemctl restart smbd nmbd</pre>
         </div>
       </div>
       <div class="step">
         <div class="num">3</div>
         <div class="step-content">
-          <h3>Montar Compartilhamento na Rede (Mount CIFS)</h3>
-          <p>O comando <code>mount</code> com o tipo <code>cifs</code> (Common Internet File System) mapeia o disco da rede diretamente no seu sistema de arquivos.</p>
-          <pre><span class="c"># 1. Crie uma pasta vazia que servirá como ponto de montagem</span>
+          <h3>Montar Compartilhamento (Mount CIFS)</h3>
+          <p>Para mapear uma pasta de rede diretamente no sistema de arquivos local do Linux, usamos o comando <code>mount</code> definindo o tipo como <code>cifs</code> (formato moderno do SMB).</p>
+          <pre><span class="c"># 1. Crie uma pasta vazia localmente que servirá como ponto de montagem</span>
 sudo mkdir -p /mnt/rede_samba
 
 <span class="c"># 2. Monte o compartilhamento mapeando para a pasta criada</span>
+<span class="c"># Sintaxe: mount -t cifs //IP_DO_SERVIDOR/NomeDaPasta /Ponto/De/Montagem -o username=Usuario</span>
 sudo mount -t cifs //192.168.1.100/Publico /mnt/rede_samba -o username=aluno01
 
-<span class="c"># O sistema pedirá a senha. Após montar, acesse os arquivos normalmente em /mnt/rede_samba</span>
+<span class="c"># Após a senha, você pode navegar pelos arquivos usando:</span>
+ls -l /mnt/rede_samba
 
-<span class="c"># 3. Para desconectar (desmontar) a pasta da rede</span>
+<span class="c"># 3. Para desconectar (desmontar) a unidade de rede</span>
 sudo umount /mnt/rede_samba</pre>
-          <div class="note"><strong>Dica:</strong> Para conseguir usar o tipo <code>cifs</code> no mount, a máquina cliente geralmente precisa ter o pacote <strong>cifs-utils</strong> instalado.</div>
+          <div class="note"><strong>Dica de Instalação:</strong> Para que o comando mount consiga entender o protocolo <code>cifs</code>, normalmente é necessário instalar o pacote <strong>cifs-utils</strong> na máquina cliente (`sudo apt install cifs-utils`).</div>
         </div>
       </div>
     </section>
