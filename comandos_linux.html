@@ -138,7 +138,7 @@ pre .c { color: var(--mono-accent); font-style: italic; }
 </nav>
 
 <div class="search-container">
-  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar comandos, parâmetros ou conceitos (ex: ls, chmod, nmcli, sudo)...">
+  <input type="text" id="searchInput" class="search-bar" placeholder="Buscar comandos, parâmetros ou conceitos (ex: ls, smb.conf, mount, scp)...">
 </div>
 
 <div class="nav-controls" id="navControls">
@@ -173,6 +173,15 @@ pre .c { color: var(--mono-accent); font-style: italic; }
     <div class="module-card" data-target="rede">
       <h3>Rede e Interfaces (IP)</h3>
       <p>Identificação de IP, rotas e configuração manual de rede via nmcli.</p>
+    </div>
+    <!-- NOVOS MÓDULOS AQUI -->
+    <div class="module-card" data-target="ssh_remoto">
+      <h3>SSH e Transferência</h3>
+      <p>Acesso remoto seguro, cópia de arquivos usando SCP e conexões SFTP.</p>
+    </div>
+    <div class="module-card" data-target="samba_share">
+      <h3>Samba e Mapeamento</h3>
+      <p>Edição do smb.conf, senhas Samba e comando mount para discos de rede.</p>
     </div>
   </div>
 
@@ -463,6 +472,108 @@ sudo nmcli connection down "Wired connection 1"
 
 <span class="c"># Reativa a conexão aplicando o novo IP manual</span>
 sudo nmcli connection up "Wired connection 1"</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SSH E TRANSFERÊNCIA REMOTA -->
+    <section id="ssh_remoto" class="command-section">
+      <h2 class="section-title">SSH e Transferência de Arquivos</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div class="step-content">
+          <h3>Conexão SSH Básica</h3>
+          <p>O SSH permite o acesso seguro ao terminal de outra máquina. O daemon (`sshd`) atua escutando requisições, normalmente na porta 22[cite: 1, 46].</p>
+          <pre><span class="c"># Sintaxe: ssh [usuario]@[ip_do_servidor]</span>
+ssh aluno@192.168.1.100
+
+<span class="c"># Para conectar especificando uma porta diferente da porta padrão 22:</span>
+ssh -p 2222 aluno@192.168.1.100</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="step-content">
+          <h3>Transferência via SCP (Secure Copy)</h3>
+          <p>O comando SCP copia arquivos entre computadores usando a mesma segurança e criptografia do SSH.</p>
+          <pre><span class="c"># Enviar arquivo LOCAL para o servidor REMOTO</span>
+scp arquivo.txt aluno@192.168.1.100:/home/aluno/
+
+<span class="c"># Baixar arquivo do servidor REMOTO para a máquina LOCAL (o ponto final significa 'pasta atual')</span>
+scp aluno@192.168.1.100:/home/aluno/backup.zip .
+
+<span class="c"># Enviar uma pasta inteira e seu conteúdo (-r de recursivo)</span>
+scp -r pasta_local/ aluno@192.168.1.100:/home/aluno/</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="step-content">
+          <h3>Sessão Interativa com SFTP</h3>
+          <p>O SFTP abre um prompt interativo seguro, semelhante ao FTP, ideal para navegar nas pastas remotas antes de transferir.</p>
+          <pre><span class="c"># Iniciar a conexão SFTP</span>
+sftp aluno@192.168.1.100
+
+<span class="c"># Comandos usados DENTRO do prompt sftp> :</span>
+ls                 <span class="c"># Lista os arquivos remotos</span>
+put relatorio.pdf  <span class="c"># Faz o UPLOAD do arquivo para o servidor</span>
+get backup.tar.gz  <span class="c"># Faz o DOWNLOAD do arquivo do servidor para sua máquina</span>
+exit               <span class="c"># Encerra a sessão sftp</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- SAMBA E COMPARTILHAMENTOS DE REDE -->
+    <section id="samba_share" class="command-section">
+      <h2 class="section-title">Samba e Mapeamento de Rede</h2>
+      <div class="step">
+        <div class="num">1</div>
+        <div class="step-content">
+          <h3>Configuração Básica do smb.conf</h3>
+          <p>O Samba permite compartilhar arquivos entre Linux e Windows na rede, utilizando a porta 445 (SMB)[cite: 1, 40]. A configuração é feita no arquivo <code>/etc/samba/smb.conf</code>.</p>
+          <pre><span class="c"># Use o nano ou vi para editar o arquivo (exige sudo)</span>
+sudo nano /etc/samba/smb.conf
+
+<span class="c"># Exemplo de configuração de um compartilhamento a ser inserido no final do arquivo:</span>
+[Publico]
+   path = /var/samba/publico
+   browsable = yes
+   read only = no
+   guest ok = no
+   valid users = aluno01, admin</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="step-content">
+          <h3>Usuários e Serviço Samba</h3>
+          <p>Para acessar um compartilhamento autenticado, o usuário precisa ser adicionado ao banco de senhas exclusivo do Samba (mesmo que ele já exista no Linux).</p>
+          <pre><span class="c"># Adiciona o usuário do Linux ao Samba e define sua senha de rede</span>
+sudo smbpasswd -a aluno01
+
+<span class="c"># Habilita o usuário caso esteja desabilitado</span>
+sudo smbpasswd -e aluno01
+
+<span class="c"># Reinicia os serviços do Samba para aplicar o smb.conf (em distribuições Debian/Ubuntu)</span>
+sudo systemctl restart smbd nmbd</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="step-content">
+          <h3>Montar Compartilhamento na Rede (Mount CIFS)</h3>
+          <p>O comando <code>mount</code> com o tipo <code>cifs</code> (Common Internet File System) mapeia o disco da rede diretamente no seu sistema de arquivos.</p>
+          <pre><span class="c"># 1. Crie uma pasta vazia que servirá como ponto de montagem</span>
+sudo mkdir -p /mnt/rede_samba
+
+<span class="c"># 2. Monte o compartilhamento mapeando para a pasta criada</span>
+sudo mount -t cifs //192.168.1.100/Publico /mnt/rede_samba -o username=aluno01
+
+<span class="c"># O sistema pedirá a senha. Após montar, acesse os arquivos normalmente em /mnt/rede_samba</span>
+
+<span class="c"># 3. Para desconectar (desmontar) a pasta da rede</span>
+sudo umount /mnt/rede_samba</pre>
+          <div class="note"><strong>Dica:</strong> Para conseguir usar o tipo <code>cifs</code> no mount, a máquina cliente geralmente precisa ter o pacote <strong>cifs-utils</strong> instalado.</div>
         </div>
       </div>
     </section>
