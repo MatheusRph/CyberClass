@@ -37,9 +37,17 @@ body{
   line-height:1.6;
 }
 .wrap{max-width:800px; margin:0 auto; padding:28px 20px 60px;}
-header{margin-bottom:12px;}
+
+/* Header & Print Button */
+header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 16px; }
 h1{font-size:1.6rem; margin:0 0 4px; letter-spacing:-0.01em;}
 .sub{color:var(--muted); font-size:0.95rem; margin:0;}
+.print-btn {
+  background: var(--accent); color: #FFFFFF; border: none; padding: 10px 16px;
+  border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer;
+  transition: opacity 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 6px;
+}
+.print-btn:hover { opacity: 0.85; }
 
 /* Subjects Nav Styles */
 nav.subjects-nav {
@@ -122,13 +130,70 @@ pre .c { color: var(--mono-accent); font-style: italic; }
   color: var(--ink); line-height: 1.5;
 }
 .note strong { color: var(--accent); }
+
+/* ==================================================
+   CSS DE IMPRESSÃO (PDF)
+   ================================================== */
+@media print {
+  /* Reseta cores de fundo para economizar tinta e forçar alto contraste */
+  body { background: #FFFFFF; color: #000000; }
+  
+  /* Esconde interface de navegação, pesquisa e botão de impressão */
+  .subjects-nav, .search-container, .nav-controls, .modules-grid, .print-btn { 
+    display: none !important; 
+  }
+  
+  /* Força a exibição de todas as seções de comandos para montar o PDF completo */
+  .subject-container, section.command-section, .step { 
+    display: block !important; 
+    box-shadow: none; 
+    border: none; 
+  }
+  
+  /* Ajustes estruturais para as seções na folha de papel */
+  section.command-section {
+    padding: 0; margin-bottom: 30px;
+    page-break-inside: avoid;
+  }
+  section h2.section-title {
+    border-bottom: 2px solid #000;
+    margin-top: 30px;
+  }
+  
+  /* Formatação dos passos */
+  .step {
+    border-bottom: 1px solid #EEEEEE;
+    page-break-inside: avoid;
+    padding: 15px 0;
+  }
+  .num {
+    display: inline-flex; margin-right: 10px; margin-bottom: 10px;
+    border: 1px solid #000; background: transparent; color: #000;
+  }
+  
+  /* Ajustes no bloco de código para não cortar no papel */
+  pre {
+    background: #F8F8F8; color: #000; border: 1px solid #DDD;
+    white-space: pre-wrap; word-wrap: break-word; /* Força quebra de linha em comandos longos */
+  }
+  pre .c { color: #555; }
+  
+  /* Remove o limite de largura para aproveitar toda a folha A4 */
+  .wrap { max-width: 100%; padding: 0; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-  <h1>Repositório de Comandos</h1>
-  <p class="sub">Guia interativo para administração de sistemas e redes</p>
+  <div>
+    <h1>Repositório de Comandos</h1>
+    <p class="sub">Guia interativo para administração de sistemas e redes</p>
+  </div>
+  <button class="print-btn" onclick="window.print()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+    Salvar PDF
+  </button>
 </header>
 
 <!-- Navegação de Matérias -->
@@ -174,7 +239,6 @@ pre .c { color: var(--mono-accent); font-style: italic; }
       <h3>Rede e Interfaces (IP)</h3>
       <p>Identificação de IP, rotas e configuração manual de rede via nmcli.</p>
     </div>
-    <!-- NOVOS MÓDULOS AQUI -->
     <div class="module-card" data-target="ssh_remoto">
       <h3>SSH e Transferência</h3>
       <p>Acesso remoto seguro, cópia de arquivos usando SCP e conexões SFTP.</p>
